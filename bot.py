@@ -2,7 +2,7 @@ from telegram.ext import Updater , CommandHandler , MessageHandler , Filters
 import os
 import requests
 import logging
-from scan import convert
+from scan import convert,toPdf
 
 def start(update,context):
     context.bot.send_message(chat_id=update.message.chat_id,text="Hello I'm Friday, Nice to meet you!!")
@@ -22,11 +22,18 @@ def bop(update,context):
 def getPic(update,context):
     pic=context.bot.get_file(update.message.photo[-1].file_id)
     pic.download('test.jpg') 
-    doc=convert('test.jpg')
-    context.bot.send_photo(chat_id=update.message.chat_id,photo=open(doc,'rb'))
+    doc,flag=convert('test.jpg')
+    if flag==0:
+        context.bot.send_message(chat_id=update.message.chat_id,text=doc)
+    else:
+        context.bot.send_photo(chat_id=update.message.chat_id,photo=open(doc,'rb'))
+        toPdf(doc)
+        context.bot.send_document(chat_id=update.message.chat_id,document=open('doc.pdf','rb'))
+        os.remove('doc.jpg')
+        os.remove('doc.pdf')
+        #print("done")
     os.remove('test.jpg')
-    os.remove('doc.jpg')
-    print("success")
+    #print("success")
 
 def main():
 
